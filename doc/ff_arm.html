@@ -1,0 +1,83 @@
+{include file="header.tpl"}
+
+<script type="text/javascript" src="js/toc.js"></script>
+<script type="text/javascript">
+	add_load_event(generateTOC);
+</script>
+
+
+
+<div class="p_hdr">
+	<h1 class="title">Fast Fourier ARM</h1>
+	<h2>The FFT algorithm for ARM architecture</h2>
+</div>
+
+    <div id="toc"></div>
+
+    <h3 class="sec_title">Features</h3>
+
+    <p>
+		<ul>
+       	<li>Implements radix-2 algorithm</li>
+        <li>Works on fixed-point (interger) data</li>
+        <li>Performs in-place algorithm - input buffer is used as output buffer</li>
+        <li>Core FFT part written in ARM assembly (using ARM EABI interface)</li>
+        <li>Licensed under GPLv2</li>
+        <li>Distributed as source code</li>
+		</ul>
+    </p>
+
+    <h3 class="sec_title">Interface</h3>
+    
+    <p>Transform accepts samples in following format:</p>
+    <div class="code">
+    	struct ff_arm_cmx {ldelim}<br/>
+			&nbsp;&nbsp;int16_t re;<br/>
+			&nbsp;&nbsp;int16_t im;<br/>
+		{rdelim};
+	</div>
+	
+    <p>To initialize algorithm call following function:
+    <div class="code">
+    	struct ff_arm_cfg* ff_arm_init(int llog);
+	</div>
+	
+	<ul>
+		<li><b>llog</b> - logarithm to base 2 of transform size. Final transform size is equal to 2^llog. Minimal accepted value of this parameter is 2, maximal 16, so transform varies in length from 4 to 65536</li>
+	</ul>
+	
+	<p>Actual transform is carried out by function:</p>
+	 <div class="code">
+    	void ff_arm_t(struct ff_arm_cfg* cfg, struct ff_arm_cmx* samples);
+	</div>
+	
+	<ul>
+		<li><b>cfg</b> - pointer which was previously returned by init function.</li>
+		<li><b>samples</b> - pointer to sample buffer. Buffer should store 2^llog elements of type <span class="code">struct ff_arm_cmx</span>.</li>
+    </ul>
+    <p>When function returns transform result is stored in <b>samples</b> buffer - algorithm runs in-place.</p>
+    
+    <p>To deallocate all resources used by algorithm call following function:</p>
+    <div class="code">
+    	void ff_arm_exit(struct ff_arm_cfg* cfg);
+	</div>
+	<ul>
+		<li><b>cfg</b> - pointer which was previously returned by init function</li>
+    </ul>
+	
+	<h3 class="sec_title">Speed-up</h3>     
+
+	<p>
+	FF-ARM does reverse-binary reindexing on input buffer in order to run algorithm in-place. It is possible to speed-up this step by making use of look-up table. Drawback of this method is greater memory usage - look-up table consumes 2^(llog + 1) bytes of memory. If you decide to use look-up table to perfrom reindexing, compile FF-ARM sources with RINDEX_LOOKUP macro defined (e.g. use -DRINDEX_LOOKUP parameter when invoking gcc). Look-up table option is disabled by default.
+	</p>
+	
+    <h3 class="sec_title">Download</h3>
+
+    <p>Source package: <a href="download/ff_arm-0.8.tar.gz">ff_arm-0.8.tar.gz</a>.</p>
+
+    <h3 class="sec_title">Contact and bug report</h3>
+
+    <p>If you would like to send me feedback or report a bug, here is my <a href="http://www.google.com/recaptcha/mailhide/d?k=01ISb5YJQSA8V4zwHmWKN9lQ==&amp;c=e7E7UERStxXFE8LrUegk4Vkid78A6SoVjMZGmS7Bwwk=" onclick="window.open('http://www.google.com/recaptcha/mailhide/d?k\07501ISb5YJQSA8V4zwHmWKN9lQ\75\75\46c\75e7E7UERStxXFE8LrUegk4Vkid78A6SoVjMZGmS7Bwwk\075', '', 'toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=0,width=500,height=300'); return false;" title="Reveal this e-mail address">e-mail</a></p>
+
+
+{include file="footer.tpl"}

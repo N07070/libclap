@@ -1,0 +1,68 @@
+{include file="header.tpl"}
+<script type="text/javascript" src="js/toc.js"></script>
+<script type="text/javascript">
+	add_load_event(generateTOC);
+</script>
+
+
+
+<div class="p_hdr">
+	<h1 class="title">CLAP</h1>
+	<h2>Clap detection library for Linux OS</h2>
+</div>
+
+    <div id="toc"></div>
+
+    <h3 class="sec_title">Presentation video</h3>
+
+    <iframe style="margin:0 0 15px 15px" width="420" height="315" src="http://www.youtube.com/embed/MFdgDUboMqE" frameborder="0" allowfullscreen></iframe>
+    <p>Sample application presented in video toggles GPIO pin when double clap is detected. The GPIO pin drives the relay which drives my lamp in turn. As you can see in the video application is resistant to signle clap and other sounds like knocking or guitar playing ;)</p>
+    <h3 class="sec_title">Installation</h3>
+
+    <p>Download and untar source package, then compile and install:</p>
+    <div class="cmd_dump">
+        <b>user@lin:~$</b> wget http://lukaszczyz.pl/download/clap-0.8.tar.gz<br/>
+        <b>user@lin:~$</b> tar -xzf clap-0.8.tar.gz<br/>
+        <b>user@lin:~$</b> cd clap<br/>
+        <b>user@lin:~/clap$</b> make<br/>
+        <b>user@lin:~/clap$</b> sudo make install<br/>
+        <b>user@lin:~/clap$</b> make pinclap
+    </div>
+
+    <p>Last step is not necessary for library installation - it only compiles sample application used in the above video.</p>
+    
+    <h3 class="sec_title">Interface</h3>
+    
+    <p>Library is easy to use and flexible in configuration. The definition of action that is invoked on clap detection time is up to application side, not library. To use library in your application include header file: <b>#include&lt;clap.h&gt;</b> and instruct linker to use shared library file at linking stage using <b>-lclap</b> gcc flag. In your application call following function when you want detection process to begin:
+    <div class="code">
+    	struct clap_cfg *clap_init(char *s_card, void (*clap_func)(void), int sens);
+	</div>
+	
+	<ul>
+		<li><b>s_card</b> - string specifying sound card on which detection will be carried out, in Alsa format e.g. "hw:0,0".</li>
+		<li><b>clap_func</b> - pointer to function which will be invoked every time library detects a clap.</li>
+		<li><b>sens</b> - must be number greater than 0, specifies sensitivity of detection process - the greater number you pass, the less sensitive library will be. Adjust that number according to your enviroment. 10 is good value to start tuning with.</li>
+	</ul>
+	<p>Function returns pointer value which must be stored by application and used when stopping detection process. Thanks to pointer distinction application may call init function many times for distinct sound cards and perform many detection processes simultaneously.</p>
+	<p>To stop detection process and deallocate all resources used by it, call following function:</p>
+	 <div class="code">
+    	void clap_free(struct clap_cfg *cfg);
+	</div>
+	
+	<ul>
+		<li><b>cfg</b> - pointer which was previously returned by init function.</li>
+    </ul>
+        
+	<h3 class="sec_title">Sample application</h3>     
+
+	<p>In source tarball you can also find <b>pinclap</b> - sample application that uses this library. Its operation is presented in the video included at the top of this page. It toggles Raspberry Pi GPIO pin when it detects double clap. You can find it in <i>pinclap</i> subdirectory. Note that you need to install <a href="https://projects.drogon.net/raspberry-pi/wiringpi/" >wiringPi</a> library to compile and run this application.</p>
+	
+    <h3 class="sec_title">Download</h3>
+
+    <p>Source package: <a href="download/clap-0.8.tar.gz">clap-0.8.tar.gz</a></p>
+
+    <h3 class="sec_title">Contact and bug report</h3>
+
+    <p>If you would like to send me feedback or report a bug, here is my <a href="http://www.google.com/recaptcha/mailhide/d?k=01ISb5YJQSA8V4zwHmWKN9lQ==&amp;c=e7E7UERStxXFE8LrUegk4Vkid78A6SoVjMZGmS7Bwwk=" onclick="window.open('http://www.google.com/recaptcha/mailhide/d?k\07501ISb5YJQSA8V4zwHmWKN9lQ\75\75\46c\75e7E7UERStxXFE8LrUegk4Vkid78A6SoVjMZGmS7Bwwk\075', '', 'toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=0,width=500,height=300'); return false;" title="Reveal this e-mail address">e-mail</a></p>
+
+{include file="footer.tpl"}
